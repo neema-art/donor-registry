@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>捐款芳名錄</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-blue: #547aa5;
+            --header-blue: #4c637d;
+            --accent-blue: #3b5998;
+            --cyan-border: #17a2b8;
+            --light-gray: #f8f8f8;
+            --border-gray: #ccc;
+            --text-dark: #333;
+            --white: #ffffff;
+        }
+
+        body {
+            font-family: 'Noto Sans TC', Arial, sans-serif;
+            background: #f8f8f8;
+            min-height: 100vh;
+            color: var(--text-dark);
+        }
+
+        .header {
+            background: var(--header-blue);
+            color: var(--white);
+            padding: 2rem 2rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .header h1 {
+            font-size: 2rem;
+            font-weight: 400;
+            letter-spacing: 0.05em;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        .search-form {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            animation: fadeInUp 0.6s ease-out 0.2s backwards;
+        }
+
+        .test-info {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f1f8fe 100%);
+            border-left: 4px solid var(--accent-blue);
+            padding: 1.5rem;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+        }
+
+        .test-info h3 {
+            color: var(--accent-blue);
+            font-size: 1.1rem;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+        }
+
+        .test-info p {
+            color: #555;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 0.75rem;
+        }
+
+        .test-info ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+
+        .test-info li {
+            color: #444;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            line-height: 1.5;
+        }
+
+        .test-info li strong {
+            color: var(--accent-blue);
+        }
+
+        .test-info .tip {
+            background: rgba(255, 255, 255, 0.7);
+            padding: 0.75rem;
+            border-radius: 3px;
+            margin-top: 1rem;
+            margin-bottom: 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-row {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+        }
+
+        input[type="text"],
+        input[type="email"] {
+            padding: 0.5rem 0.75rem;
+            border: 1px solid var(--border-gray);
+            border-radius: 3px;
+            font-size: 0.95rem;
+            font-family: 'Noto Sans TC', Arial, sans-serif;
+            transition: all 0.3s ease;
+            background: var(--white);
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus {
+            outline: none;
+            border-color: var(--accent-blue);
+            box-shadow: 0 0 0 2px rgba(59, 89, 152, 0.1);
+        }
+
+        input::placeholder {
+            color: #999;
+        }
+
+        .hint {
+            font-size: 0.875rem;
+            color: #666;
+            margin-top: 0.5rem;
+        }
+
+        .captcha-section {
+            background: #f9f9f9;
+            padding: 1.5rem;
+            border-radius: 3px;
+            border: 1px solid var(--border-gray);
+            margin-bottom: 1.5rem;
+        }
+
+        .captcha-header {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.75rem;
+            color: var(--text-dark);
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border-gray);
+        }
+
+        .captcha-description {
+            font-size: 0.95rem;
+            color: #555;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .captcha-image {
+            background: var(--white);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border: 2px solid var(--border-gray);
+            margin-bottom: 1.5rem;
+            display: inline-block;
+        }
+
+        .captcha-text {
+            font-family: 'Courier New', monospace;
+            font-size: 2.5rem;
+            font-weight: bold;
+            letter-spacing: 0.3rem;
+            color: #2c4a3e;
+            text-decoration: line-through;
+            text-decoration-color: #d4a574;
+            transform: skewX(-5deg);
+            user-select: none;
+        }
+
+        .captcha-input-group label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .required {
+            color: #e74c3c;
+        }
+
+        .captcha-input-group input {
+            margin-top: 0.5rem;
+        }
+
+        .captcha-helper {
+            font-size: 0.875rem;
+            color: #777;
+            margin-top: 0.5rem;
+        }
+
+        .submit-button {
+            background: var(--accent-blue);
+            color: var(--white);
+            padding: 0.75rem 2rem;
+            border: none;
+            border-radius: 3px;
+            font-size: 1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            font-family: 'Noto Sans TC', Arial, sans-serif;
+        }
+
+        .submit-button:hover {
+            background: #2d4373;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.25);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .results-section {
+            display: none;
+            animation: fadeInUp 0.6s ease-out;
+        }
+
+        .results-section.active {
+            display: block;
+        }
+
+        /* 結果頁面的搜尋表單 */
+        .results-search-box {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            margin-bottom: 2rem;
+            border: 3px solid var(--cyan-border);
+        }
+
+        .results-search-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-search-title {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--text-dark);
+        }
+
+        .donate-button {
+            background: var(--header-blue);
+            color: var(--white);
+            padding: 0.625rem 1.5rem;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans TC', Arial, sans-serif;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .donate-button:hover {
+            background: #3a4d5f;
+        }
+
+        .results-form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .results-form-row {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .results-form-row.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .search-button-compact {
+            background: var(--header-blue);
+            color: var(--white);
+            padding: 0.625rem 2rem;
+            border: none;
+            border-radius: 3px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Noto Sans TC', Arial, sans-serif;
+            align-self: flex-start;
+        }
+
+        .search-button-compact:hover {
+            background: #3a4d5f;
+        }
+
+        /* 結果表格 */
+        .results-content {
+            background: var(--white);
+            padding: 0;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .no-results {
+            background: #fff8dc;
+            border: 1px solid #f0e68c;
+            padding: 1.5rem;
+            text-align: center;
+            margin: 1.5rem;
+        }
+
+        .no-results p {
+            color: #666;
+            margin: 0;
+            font-size: 0.95rem;
+        }
+
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .results-table thead {
+            background: #e8ecf0;
+            border-bottom: 2px solid var(--cyan-border);
+        }
+
+        .results-table th {
+            padding: 1rem;
+            text-align: left;
+            font-weight: 600;
+            color: var(--text-dark);
+            font-size: 0.95rem;
+        }
+
+        .results-table tbody tr {
+            border-bottom: 1px solid #e8e8e8;
+            transition: all 0.2s ease;
+            background: var(--white);
+        }
+
+        .results-table tbody tr:hover {
+            background: #f0f4f8;
+        }
+
+        .results-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .results-table td {
+            padding: 1rem;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+        }
+
+        .amount {
+            font-weight: 600;
+            color: #27ae60;
+        }
+
+        .error-message {
+            background: #fee;
+            border: 2px solid #fcc;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            display: none;
+            animation: shake 0.5s ease;
+        }
+
+        .error-message.active {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.5rem;
+            }
+
+            .container {
+                padding: 1.5rem 1rem;
+            }
+
+            .search-form,
+            .results-search-box {
+                padding: 1.5rem;
+            }
+
+            .results-form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .results-table {
+                font-size: 0.875rem;
+                display: block;
+                overflow-x: auto;
+            }
+
+            .results-table th,
+            .results-table td {
+                padding: 0.75rem 0.5rem;
+            }
+
+            .results-search-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>捐款芳名錄</h1>
+    </div>
+
+    <div class="container">
+        <!-- 初始搜尋表單 -->
+        <div class="search-form" id="searchForm">
+            <div class="test-info">
+                <h3>💡 測試資料說明</h3>
+                <p>請輸入以下任一組資料進行測試（驗證碼：x4w6E）：</p>
+                <ul>
+                    <li><strong>謝OO</strong> - Email: hsieh@example.com 或 身分證: A123456789</li>
+                    <li><strong>陳OO</strong> - Email: chen@example.com 或 身分證: B234567890</li>
+                    <li><strong>林OO</strong> - Email: lin@example.com 或 生日: 1990-05-15 | 專案: 屋頂計畫</li>
+                    <li><strong>王OO</strong> - Email: wang@example.com 或 身分證: C345678901 | 專案: 醫療的雨</li>
+                    <li><strong>李OO</strong> - Email: lee888@example.com 或 生日: 1985-12-20</li>
+                    <li><strong>張OO</strong> - Email: chang@example.com 或 身分證: D456789012 | 專案: 支持計畫</li>
+                </ul>
+                <p class="tip">提示：可以只填寫其中一個欄位進行查詢，也可以填寫多個欄位縮小搜尋範圍。</p>
+            </div>
+
+            <form id="donorForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="donorName">捐款人</label>
+                        <input type="text" id="donorName" name="donorName">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="email">電子信箱</label>
+                        <input type="email" id="email" name="email">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="idNumber">身分證字號/生日</label>
+                        <input type="text" id="idNumber" name="idNumber">
+                        <div class="hint">日期格視為 YYYY-MM-DD</div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="project">捐款專案</label>
+                        <input type="text" id="project" name="project" placeholder="選填">
+                    </div>
+                </div>
+
+                <div class="captcha-section">
+                    <div class="captcha-header">CAPTCHA</div>
+                    <div class="captcha-description">
+                        這個問題是為了測試你是否是一個真人訪客，以防止垃圾訊息。
+                    </div>
+                    <div class="captcha-image">
+                        <div class="captcha-text">x⁴w6E</div>
+                    </div>
+                    <div class="captcha-input-group">
+                        <label>
+                            請輸入圖片內的文字？<span class="required">*</span>
+                        </label>
+                        <input type="text" id="captcha" name="captcha" required>
+                        <div class="captcha-helper">請輸入圖片上的文字。</div>
+                    </div>
+                </div>
+
+                <div class="error-message" id="errorMessage">
+                    驗證碼錯誤，請重新輸入。
+                </div>
+
+                <button type="submit" class="submit-button">查詢</button>
+            </form>
+        </div>
+
+        <!-- 結果頁面 -->
+        <div class="results-section" id="resultsSection">
+            <!-- 結果頁的搜尋表單 -->
+            <div class="results-search-box">
+                <div class="results-search-header">
+                    <h2 class="results-search-title">捐款徵信</h2>
+                    <a href="#" class="donate-button">我要捐款</a>
+                </div>
+
+                <form id="resultsForm">
+                    <div class="results-form-grid">
+                        <div class="results-form-row">
+                            <label for="donorName2">捐款人</label>
+                            <input type="text" id="donorName2" name="donorName2">
+                        </div>
+
+                        <div class="results-form-row">
+                            <label for="email2">電子信箱</label>
+                            <input type="email" id="email2" name="email2">
+                        </div>
+
+                        <div class="results-form-row">
+                            <label for="idNumber2">身分證字號/生日</label>
+                            <input type="text" id="idNumber2" name="idNumber2">
+                        </div>
+
+                        <div class="results-form-row">
+                            <label for="project2">捐款專案</label>
+                            <input type="text" id="project2" name="project2" placeholder="選填">
+                        </div>
+
+                        <div class="results-form-row full-width">
+                            <button type="submit" class="search-button-compact">搜尋</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- 結果顯示 -->
+            <div class="results-content">
+                <div class="no-results" id="noResultsMessage" style="display: none;">
+                    <p>查無資料。（請輸入捐款人姓名、email、身份證字號或者出生日期）</p>
+                </div>
+
+                <table class="results-table">
+                    <thead>
+                        <tr>
+                            <th>捐款日期</th>
+                            <th>捐款金額</th>
+                            <th>捐款者抬頭</th>
+                            <th>捐款專案</th>
+                        </tr>
+                    </thead>
+                    <tbody id="resultsBody">
+                        <!-- 結果將由 JavaScript 動態插入 -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('donorForm');
+        const resultsForm = document.getElementById('resultsForm');
+        const searchForm = document.getElementById('searchForm');
+        const resultsSection = document.getElementById('resultsSection');
+        const captchaInput = document.getElementById('captcha');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultsBody = document.getElementById('resultsBody');
+        const noResultsMessage = document.getElementById('noResultsMessage');
+
+        // Correct captcha answer
+        const correctCaptcha = 'x4w6E';
+
+        // 假資料庫 - 多組捐款記錄
+        const donorDatabase = [
+            // 謝OO的記錄
+            { 
+                name: '謝OO', 
+                email: 'hsieh@example.com', 
+                id: 'A123456789', 
+                records: [
+                    { date: '2022/11/15', amount: 'NT$ 6,000', title: '謝OO', project: '一般捐款' },
+                    { date: '2022/12/15', amount: 'NT$ 6,000', title: '謝OO', project: '一般捐款' },
+                    { date: '2023/01/15', amount: 'NT$ 6,000', title: '謝OO', project: '一般捐款' },
+                    { date: '2023/02/15', amount: 'NT$ 6,000', title: '謝OO', project: '一般捐款' }
+                ]
+            },
+            // 陳OO的記錄
+            { 
+                name: '陳OO', 
+                email: 'chen@example.com', 
+                id: 'B234567890', 
+                records: [
+                    { date: '2023/05/10', amount: 'NT$ 3,000', title: '陳政忠', project: '教育基金' },
+                    { date: '2023/08/10', amount: 'NT$ 3,000', title: '陳政忠', project: '教育基金' },
+                    { date: '2023/11/10', amount: 'NT$ 5,000', title: '陳政忠', project: '教育基金' }
+                ]
+            },
+            // 林OO的記錄
+            { 
+                name: '林OO', 
+                email: 'lin@example.com', 
+                id: '1990-05-15', 
+                records: [
+                    { date: '2023/03/20', amount: 'NT$ 10,000', title: '林小美', project: '屋頂計畫' },
+                    { date: '2023/09/20', amount: 'NT$ 10,000', title: '林小美', project: '屋頂計畫' }
+                ]
+            },
+            // 王OO的記錄
+            { 
+                name: '王OO', 
+                email: 'wang@example.com', 
+                id: 'C345678901', 
+                records: [
+                    { date: '2023/01/05', amount: 'NT$ 2,000', title: '王大明', project: '醫療的雨' },
+                    { date: '2023/04/05', amount: 'NT$ 2,000', title: '王大明', project: '醫療的雨' },
+                    { date: '2023/07/05', amount: 'NT$ 2,000', title: '王大明', project: '醫療的雨' },
+                    { date: '2023/10/05', amount: 'NT$ 2,000', title: '王大明', project: '醫療的雨' }
+                ]
+            },
+            // 李OO的記錄
+            { 
+                name: '李OO', 
+                email: 'lee888@example.com', 
+                id: '1985-12-20', 
+                records: [
+                    { date: '2022/06/30', amount: 'NT$ 8,000', title: '李龍貴', project: '緊急救助' },
+                    { date: '2022/12/30', amount: 'NT$ 12,000', title: '李龍貴', project: '緊急救助' },
+                    { date: '2023/06/30', amount: 'NT$ 8,000', title: '李龍貴', project: '緊急救助' }
+                ]
+            },
+            // 張OO的記錄
+            { 
+                name: '張OO', 
+                email: 'chang@example.com', 
+                id: 'D456789012', 
+                records: [
+                    { date: '2023/02/14', amount: 'NT$ 5,000', title: '張美玲', project: '支持計畫' },
+                    { date: '2023/05/14', amount: 'NT$ 5,000', title: '張美玲', project: '支持計畫' },
+                    { date: '2023/08/14', amount: 'NT$ 5,000', title: '張美玲', project: '支持計畫' },
+                    { date: '2023/11/14', amount: 'NT$ 5,000', title: '張美玲', project: '支持計畫' }
+                ]
+            }
+        ];
+
+        // 搜尋函數
+        function searchDonor(name, email, idNumber, project) {
+            // 如果所有欄位都是空的，返回空結果
+            if (!name && !email && !idNumber && !project) {
+                return null;
+            }
+
+            // 搜尋匹配的捐款人
+            const results = donorDatabase.filter(donor => {
+                let match = true;
+                
+                if (name && name.trim() !== '') {
+                    match = match && donor.name.includes(name.trim());
+                }
+                
+                if (email && email.trim() !== '') {
+                    match = match && donor.email.toLowerCase().includes(email.trim().toLowerCase());
+                }
+                
+                if (idNumber && idNumber.trim() !== '') {
+                    match = match && donor.id.includes(idNumber.trim());
+                }
+                
+                // 如果有專案篩選，進一步過濾記錄
+                if (match && project && project.trim() !== '') {
+                    const filteredRecords = donor.records.filter(record => 
+                        record.project.includes(project.trim())
+                    );
+                    if (filteredRecords.length > 0) {
+                        return { ...donor, records: filteredRecords };
+                    } else {
+                        return false;
+                    }
+                }
+                
+                return match;
+            });
+
+            return results.length > 0 ? results[0] : null;
+        }
+
+        // 顯示結果
+        function displayResults(donor) {
+            resultsBody.innerHTML = '';
+            
+            if (!donor || !donor.records || donor.records.length === 0) {
+                noResultsMessage.style.display = 'block';
+                resultsBody.closest('table').style.display = 'none';
+                return;
+            }
+
+            noResultsMessage.style.display = 'none';
+            resultsBody.closest('table').style.display = 'table';
+
+            donor.records.forEach((record, index) => {
+                const row = document.createElement('tr');
+                row.style.animation = `fadeInUp 0.4s ease-out ${index * 0.1}s backwards`;
+                row.innerHTML = `
+                    <td>${record.date}</td>
+                    <td class="amount">${record.amount}</td>
+                    <td>${record.title}</td>
+                    <td>${record.project}</td>
+                `;
+                resultsBody.appendChild(row);
+            });
+        }
+
+        // 初始表單提交
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Validate captcha
+            const userCaptcha = captchaInput.value.trim();
+            
+            if (userCaptcha === correctCaptcha) {
+                // Hide error message if showing
+                errorMessage.classList.remove('active');
+                
+                // 取得輸入值
+                const donorName = document.getElementById('donorName').value;
+                const email = document.getElementById('email').value;
+                const idNumber = document.getElementById('idNumber').value;
+                const project = document.getElementById('project').value;
+                
+                // 搜尋捐款人
+                const result = searchDonor(donorName, email, idNumber, project);
+                
+                // 同步到結果頁的表單
+                document.getElementById('donorName2').value = donorName;
+                document.getElementById('email2').value = email;
+                document.getElementById('idNumber2').value = idNumber;
+                document.getElementById('project2').value = project;
+                
+                // 顯示結果
+                displayResults(result);
+                
+                // 切換到結果頁面
+                searchForm.style.display = 'none';
+                resultsSection.classList.add('active');
+                
+                // Scroll to top smoothly
+                window.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            } else {
+                // Show error message
+                errorMessage.classList.add('active');
+                captchaInput.focus();
+                captchaInput.select();
+            }
+        });
+
+        // 結果頁表單提交（重新搜尋）
+        resultsForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 取得輸入值
+            const donorName = document.getElementById('donorName2').value;
+            const email = document.getElementById('email2').value;
+            const idNumber = document.getElementById('idNumber2').value;
+            const project = document.getElementById('project2').value;
+            
+            // 搜尋捐款人
+            const result = searchDonor(donorName, email, idNumber, project);
+            
+            // 顯示結果
+            displayResults(result);
+            
+            // Scroll to results
+            window.scrollTo({
+                top: resultsSection.offsetTop - 20,
+                behavior: 'smooth'
+            });
+        });
+
+        // Clear error message when user starts typing
+        captchaInput.addEventListener('input', function() {
+            errorMessage.classList.remove('active');
+        });
+    </script>
+</body>
+</html>
